@@ -70,7 +70,7 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
             for (int i = 0; i < 3; i++) {
                 rb[i] = new RadioButton(mContext);
                 rb[i].setText("Position" + i);
-                rb[i].setId(i + 100);
+                rb[i].setId(i + 100);dcc
                 radioGroup.addView(rb[i]);
             }
             holder.llvContainer.addView(view, 0);
