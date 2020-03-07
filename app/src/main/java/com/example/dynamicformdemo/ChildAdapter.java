@@ -32,7 +32,23 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Field field = mDataset.get(position);
-        holder.tvName.setText(field.getType());
+        switch (field.getType()){
+            case "STRING":
+                holder.tvName.setText(field.getType());
+                break;
+            case "TEXT":
+                holder.tvName.setText(field.getType());
+                break;
+            case "RADIO":
+                holder.tvName.setText(field.getType());
+                break;
+            case "CHECKBOX":
+                holder.tvName.setText(field.getType());
+                break;
+            default:
+                break;
+        }
+
     }
 
     @Override

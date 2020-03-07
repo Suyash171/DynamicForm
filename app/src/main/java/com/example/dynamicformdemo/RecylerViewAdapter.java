@@ -46,25 +46,9 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
         Field field = mDataset.get(position);
 
         holder.recylerView.setLayoutManager(new LinearLayoutManager(mContext));
-        adapter = new ChildAdapter(childListItems,mContext);
+        adapter = new ChildAdapter(mDataset,mContext);
         holder.recylerView.setAdapter(adapter);
 
-        switch (field.getType()){
-            case "STRING":
-                childListItems.add(field);
-                break;
-            case "TEXT":
-                childListItems.add(field);
-                break;
-            case "RADIO":
-                childListItems.add(field);
-                break;
-            case "CHECKBOX":
-                childListItems.add(field);
-                break;
-            default:
-                break;
-        }
        /* LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         if (field.getType().equalsIgnoreCase("STRING")) {
