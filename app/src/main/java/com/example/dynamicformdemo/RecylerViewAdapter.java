@@ -52,6 +52,8 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
        /* LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         if (field.getType().equalsIgnoreCase("STRING")) {
+
+        k,jk
             View view = inflater.inflate(R.layout.layout_tv_label, null);
             TextView tvName = view.findViewById(R.id.tv_name);
             tvName.setText(field.getName());
