@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.gipl.imagepicker.ImageResult;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder> {
 
@@ -54,26 +55,38 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
             case "RADIO":
                 holder.radioGroup.setVisibility(View.VISIBLE);
                 RadioGroup radioGroup = holder.itemView.findViewById(R.id.radioGrp);
-                RadioButton[] rb = new RadioButton[5];
+                RadioButton rb;
                 radioGroup.removeAllViews();
                 radioGroup.setOrientation(RadioGroup.VERTICAL); //or RadioGroup.VERTICAL
-                rb[0] = new RadioButton(mContext);
-                rb[0].setText("Position" + 0);
-                rb[0].setId(0 + 100);
-                radioGroup.addView(rb[0]);
+
+                if (field.getValues() != null && field.getValues().size() != 0){
+                    for (Field values: field.getValues()) {
+                        rb= new RadioButton(mContext);
+                        rb.setText("Radio " + values.getName());
+                        rb.setId(0);
+                        radioGroup.addView(rb);
+                    }
+                }
+
                 break;
             case "CHECKBOX":
                 holder.linearLayout.setVisibility(View.VISIBLE);
                 holder.linearLayout.setOrientation(LinearLayout.VERTICAL);
                 holder.linearLayout.removeAllViews();
 
-                final CheckBox ch = new CheckBox(mContext);
-                ch.setId(0);
-                ch.setText("Cheers !! " + 0);
-                ch.setOnCheckedChangeListener((compoundButton, b) -> {
+                if (field.getValues() != null && field.getValues().size() != 0){
+                    List<Field> fields = field.getValues();
+                    for (Field values: fields) {
+                        final CheckBox ch = new CheckBox(mContext);
+                        ch.setId(0);
+                        ch.setText("Cheers !! " + values.getName());
+                        ch.setOnCheckedChangeListener((compoundButton, b) -> {
 
-                });
-                holder.linearLayout.addView(ch);
+                        });
+                        holder.linearLayout.addView(ch);
+                    }
+                }
+
                 break;
             case "UPLOAD_IMAGE":
                 holder.llvImageUpload.setVisibility(View.VISIBLE);

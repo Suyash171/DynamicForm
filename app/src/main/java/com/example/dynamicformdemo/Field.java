@@ -4,6 +4,8 @@ package com.example.dynamicformdemo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class Field {
 
     @SerializedName("name")
@@ -27,6 +29,10 @@ public class Field {
     @SerializedName("defaultValue")
     @Expose
     private Boolean defaultValue;
+
+    @SerializedName("values")
+    @Expose
+    private List<Field> values = null;
 
     public String getName() {
         return name;
@@ -82,6 +88,14 @@ public class Field {
 
     public void setDefaultValue(Boolean defaultValue) {
         this.defaultValue = defaultValue;
+    }
+
+    public List<Field> getValues() {
+        return values;
+    }
+
+    public void setValues(List<Field> values) {
+        this.values = values;
     }
 
 }
