@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
     private ArrayList<Field> dataset = new ArrayList<>();
     private PickerConfiguration pickerConfiguration;
     private ImagePickerDialog imagePickerDialog;
+    private int selectedImageViewPosition;
 
     String jsonString = "{\"name\":\"Mahesh\", \"type\":1}";
     //String dummyForm = "[{\"name\":\"fieldA\",\"type\":\"STRING\",\"minCharacters\":10,\"maxCharacters\":100},{\"name\":\"fieldB\",\"type\":\"INTEGER\",\"min\":10,\"max\":100},{\"name\":\"fieldC\",\"type\":\"BOOLEAN_CHECKBOX\",\"defaultValue\":true}]";
@@ -103,7 +104,8 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
     }
 
     @Override
-    public void onImageUpload() {
+    public void onImageUpload(int position) {
+        selectedImageViewPosition = position;
         imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration);
     }
 
@@ -125,13 +127,12 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
                     @Override
                     public void onImageGet(ImageResult imageResult) {
                         super.onImageGet(imageResult);
-
                     }
 
                     @Override
                     public void onReceiveImageList(ArrayList<ImageResult> sFilePath) {
                         super.onReceiveImageList(sFilePath);
-
+                        adapter.setSelectedImage(sFilePath,selectedImageViewPosition);
                     }
                 })
                 .setSetCustomDialog(true);

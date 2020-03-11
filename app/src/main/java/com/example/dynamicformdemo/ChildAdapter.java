@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -13,12 +12,10 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.gipl.imagepicker.ImagePickerDialog;
-import com.gipl.imagepicker.PickerConfiguration;
+import com.gipl.imagepicker.ImageResult;
 
 import java.util.ArrayList;
 
@@ -27,6 +24,8 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
     private ArrayList<Field> mDataset;
     private Context mContext;
     private iOnClickListener iOnClickListener;
+    // private MyViewHolder myViewHolder;
+    private ImageAdapter imageAdapter;
 
     public ChildAdapter(ArrayList<Field> myDataset, Context context) {
         mDataset = myDataset;
@@ -42,10 +41,11 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        // myViewHolder = holder;
         Field field = mDataset.get(position);
-        switch (field.getType()){
+        switch (field.getType()) {
             case "STRING":
-                holder.tvName.setText(field.getType());
+                holder.tvName.setText(field.getName());
                 holder.tvName.setVisibility(View.VISIBLE);
                 break;
             case "TEXT":
@@ -57,32 +57,33 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
                 RadioButton[] rb = new RadioButton[5];
                 radioGroup.removeAllViews();
                 radioGroup.setOrientation(RadioGroup.VERTICAL); //or RadioGroup.VERTICAL
-                for (int i = 0; i < 2; i++) {
-                    rb[i] = new RadioButton(mContext);
-                    rb[i].setText("Position" + i);
-                    rb[i].setId(i + 100);
-                    radioGroup.addView(rb[i]);
-                }
+                rb[0] = new RadioButton(mContext);
+                rb[0].setText("Position" + 0);
+                rb[0].setId(0 + 100);
+                radioGroup.addView(rb[0]);
                 break;
             case "CHECKBOX":
                 holder.linearLayout.setVisibility(View.VISIBLE);
                 holder.linearLayout.setOrientation(LinearLayout.VERTICAL);
                 holder.linearLayout.removeAllViews();
-                for (int i = 0; i < 2; i++) {
-                    final CheckBox ch = new CheckBox(mContext);
-                    ch.setId(i);
-                    ch.setText("Cheers !! "+i);
-                    ch.setOnCheckedChangeListener((compoundButton, b) -> {
 
-                    });
-                    holder.linearLayout.addView(ch);
-                }
+                final CheckBox ch = new CheckBox(mContext);
+                ch.setId(0);
+                ch.setText("Cheers !! " + 0);
+                ch.setOnCheckedChangeListener((compoundButton, b) -> {
+
+                });
+                holder.linearLayout.addView(ch);
                 break;
             case "UPLOAD_IMAGE":
                 holder.llvImageUpload.setVisibility(View.VISIBLE);
                 holder.btnUploadImage.setOnClickListener(view -> {
                     // Open custom dialog with icons.
-                    iOnClickListener.onImageUpload();
+                    holder.rvImages.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+                    imageAdapter = new ImageAdapter();
+                    holder.rvImages.setAdapter(imageAdapter);
+
+                    iOnClickListener.onImageUpload(position);
                 });
 
                 break;
@@ -91,6 +92,12 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
         }
     }
 
+    /**
+     *
+     */
+    public void setSelectedImage(ArrayList<ImageResult> imageResults, int pos) {
+        imageAdapter.addAll(imageResults);
+    }
 
     @Override
     public int getItemCount() {
@@ -99,12 +106,13 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public TextView tvName,btnUploadImage;
+        public TextView tvName, btnUploadImage;
         public EditText etName;
         public RadioGroup radioGroup;
         public LinearLayout linearLayout;
         public LinearLayout llvImageUpload;
         public RecyclerView rvImages;
+        public MyViewHolder myViewHolder;
 
         public MyViewHolder(View v) {
             super(v);
@@ -130,8 +138,8 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
     }
 
 
-    interface iOnClickListener{
-        void onImageUpload();
+    interface iOnClickListener {
+        void onImageUpload(int position);
     }
 
 }
