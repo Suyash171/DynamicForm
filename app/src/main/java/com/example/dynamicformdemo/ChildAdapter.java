@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gipl.imagepicker.ImageResult;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,31 +47,60 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
             case "STRING":
                 holder.tvName.setText(field.getName());
                 holder.tvName.setVisibility(View.VISIBLE);
+
+                //disable other views
+                holder.etName.setVisibility(View.GONE);
+                holder.radioGroup.setVisibility(View.GONE);
+                holder.linearLayout.setVisibility(View.GONE);
+                holder.llvImageUpload.setVisibility(View.GONE);
+
                 break;
             case "TEXT":
                 holder.etName.setVisibility(View.VISIBLE);
+
+                //disable other views
+                holder.tvName.setVisibility(View.GONE);
+                holder.radioGroup.setVisibility(View.GONE);
+                holder.linearLayout.setVisibility(View.GONE);
+                holder.llvImageUpload.setVisibility(View.GONE);
+
                 break;
             case "RADIO":
                 holder.radioGroup.setVisibility(View.VISIBLE);
+
+                //disable other views
+                holder.etName.setVisibility(View.GONE);
+                holder.tvName.setVisibility(View.GONE);
+                holder.linearLayout.setVisibility(View.GONE);
+                holder.llvImageUpload.setVisibility(View.GONE);
+
                 RadioGroup radioGroup = holder.itemView.findViewById(R.id.radioGrp);
                 RadioButton rb;
-                radioGroup.removeAllViews();
                 radioGroup.setOrientation(RadioGroup.VERTICAL); //or RadioGroup.VERTICAL
 
                 if (field.getValues() != null && field.getValues().size() != 0){
                     for (Field values: field.getValues()) {
                         rb= new RadioButton(mContext);
                         rb.setText("Radio " + values.getName());
-                        rb.setId(0);
+                        rb.setId(values.getMax());
                         radioGroup.addView(rb);
                     }
                 }
+
+
 
                 break;
             case "CHECKBOX":
                 holder.linearLayout.setVisibility(View.VISIBLE);
                 holder.linearLayout.setOrientation(LinearLayout.VERTICAL);
                 holder.linearLayout.removeAllViews();
+
+                //disable other views
+                holder.etName.setVisibility(View.GONE);
+                holder.tvName.setVisibility(View.GONE);
+                holder.radioGroup.setVisibility(View.GONE);
+                holder.llvImageUpload.setVisibility(View.GONE);
+
 
                 if (field.getValues() != null && field.getValues().size() != 0){
                     List<Field> fields = field.getValues();
@@ -90,6 +118,14 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
                 break;
             case "UPLOAD_IMAGE":
                 holder.llvImageUpload.setVisibility(View.VISIBLE);
+
+                //disable other views
+                holder.etName.setVisibility(View.GONE);
+                holder.tvName.setVisibility(View.GONE);
+                holder.radioGroup.setVisibility(View.GONE);
+                holder.linearLayout.setVisibility(View.GONE);
+
+
                 holder.btnUploadImage.setOnClickListener(view -> {
                     // Open custom dialog with icons.
                     holder.rvImages.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
