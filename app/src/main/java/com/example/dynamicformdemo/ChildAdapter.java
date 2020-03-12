@@ -43,6 +43,7 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         // myViewHolder = holder;
         Field field = mDataset.get(position);
+
         switch (field.getType()) {
             case "STRING":
                 holder.tvName.setText(field.getName());
@@ -86,9 +87,6 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
                         radioGroup.addView(rb);
                     }
                 }
-
-
-
                 break;
             case "CHECKBOX":
                 holder.linearLayout.setVisibility(View.VISIBLE);
