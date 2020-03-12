@@ -67,7 +67,7 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
                 break;
             case "RADIO":
                 holder.radioGroup.setVisibility(View.VISIBLE);
-
+                holder.radioGroup.removeAllViews();
                 //disable other views
                 holder.etName.setVisibility(View.GONE);
                 holder.tvName.setVisibility(View.GONE);
