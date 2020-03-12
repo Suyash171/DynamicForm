@@ -17,7 +17,7 @@ public class CallingActivity extends AppCompatActivity  {
 
         btnInlfator = findViewById(R.id.btnINflate);
         btnRecyler = findViewById(R.id.btnRecylerView);
-        btnCustomInflator = findViewById(R.id.btnCustom);
+        //btnCustomInflator = findViewById(R.id.btnCustom);
 
         btnRecyler.setOnClickListener(view -> {
             MainActivity.start(this,false);
@@ -27,9 +27,6 @@ public class CallingActivity extends AppCompatActivity  {
             MainActivity.start(this,true);
         });
 
-        btnCustomInflator.setOnClickListener(view -> {
-            CreateViewProgramatically.start(this);
-        });
 
     }
 

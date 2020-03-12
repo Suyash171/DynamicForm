@@ -1,6 +1,7 @@
 package com.example.dynamicformdemo;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.gipl.imagepicker.ImageResult;
 
 import java.util.ArrayList;
@@ -37,7 +39,13 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyImageViewH
     @Override
     public void onBindViewHolder(@NonNull MyImageViewHolder holder, int position) {
         String imageResult = imageResults.get(position).getsImagePath();
-        holder.imageView.setImageURI(Uri.parse(imageResult));
+
+        Glide.with(holder.itemView.getContext())
+                .load(imageResult)
+                .centerCrop()
+                .into(holder.imageView);
+
+        // holder.imageView.setImageURI(Uri.parse(imageResult));
     }
 
     @Override
