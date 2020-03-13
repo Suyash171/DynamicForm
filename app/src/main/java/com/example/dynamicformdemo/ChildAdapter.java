@@ -2,6 +2,8 @@ package com.example.dynamicformdemo;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,16 +24,21 @@ import java.util.List;
 
 public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder> {
 
-    private ArrayList<Field> mDataset;
     private Context mContext;
     private iOnClickListener iOnClickListener;
     // private MyViewHolder myViewHolder;
     private ImageAdapter imageAdapter;
+    private FieldsModel fieldsModel = new FieldsModel();
 
-    public ChildAdapter(ArrayList<Field> myDataset, Context context) {
-        mDataset = myDataset;
+    public ChildAdapter(Context context) {
         mContext = context;
     }
+
+
+    public void addAll(ArrayList<Field> fields) {
+        fieldsModel.setFields(fields);
+    }
+
 
     @NonNull
     @Override
@@ -43,7 +50,7 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         // myViewHolder = holder;
-        Field field = mDataset.get(position);
+        Field field = fieldsModel.getFields().get(position);
 
         switch (field.getType()) {
             case "STRING":
@@ -60,6 +67,24 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
             case "TEXT":
                 holder.etName.setVisibility(View.VISIBLE);
 
+                //update text entered
+                holder.etName.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                        fieldsModel.getFields().get(position).setEnteredValue(charSequence.toString());
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+
+                    }
+                });
+
                 //disable other views
                 holder.tvName.setVisibility(View.GONE);
                 holder.radioGroup.setVisibility(View.GONE);
@@ -70,6 +95,7 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
             case "RADIO":
                 holder.radioGroup.setVisibility(View.VISIBLE);
                 holder.radioGroup.removeAllViews();
+
                 //disable other views
                 holder.etName.setVisibility(View.GONE);
                 holder.tvName.setVisibility(View.GONE);
@@ -88,6 +114,7 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
                         radioGroup.addView(rb);
                     }
                 }
+
                 break;
             case "CHECKBOX":
                 holder.linearLayout.setVisibility(View.VISIBLE);
@@ -124,7 +151,6 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
                 holder.radioGroup.setVisibility(View.GONE);
                 holder.linearLayout.setVisibility(View.GONE);
 
-
                 holder.btnUploadImage.setOnClickListener(view -> {
                     // Open custom dialog with icons.
                     holder.rvImages.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
@@ -149,7 +175,7 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
 
     @Override
     public int getItemCount() {
-        return mDataset.size();
+        return fieldsModel.getFields().size();
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {

@@ -34,6 +34,8 @@ public class Field {
     @Expose
     private List<Field> values = null;
 
+    private String enteredValue;
+
     public String getName() {
         return name;
     }
@@ -98,4 +100,11 @@ public class Field {
         this.values = values;
     }
 
+    public String getEnteredValue() {
+        return enteredValue;
+    }
+
+    public void setEnteredValue(String enteredValue) {
+        this.enteredValue = enteredValue;
+    }
 }
