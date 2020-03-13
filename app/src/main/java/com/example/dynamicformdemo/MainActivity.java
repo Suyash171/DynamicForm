@@ -31,6 +31,8 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnClickListener, RecylerViewAdapter.iOnClickListener {
@@ -46,6 +48,11 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
     private boolean isInflator = false;
     private Button btnSubmit;
     private ModelForm form = new ModelForm();
+
+    private static final int defaultStep = 5;
+    private int moveCounter;
+
+
     String jsonString = "{\"name\":\"Mahesh\", \"type\":1}";
     //String dummyForm = "[{\"name\":\"fieldA\",\"type\":\"STRING\",\"minCharacters\":10,\"maxCharacters\":100},{\"name\":\"fieldB\",\"type\":\"INTEGER\",\"min\":10,\"max\":100},{\"name\":\"fieldC\",\"type\":\"BOOLEAN_CHECKBOX\",\"defaultValue\":true}]";
     //String dummyForm = "[{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldA\",\"type\":\"RADIO\",\"minCharacters\":10,\"maxCharacters\":100},{\"name\":\"fieldB\",\"type\":\"TEXT\",\"min\":10,\"max\":100},{\"name\":\"fieldC\",\"type\":\"CHECKBOX\",\"defaultValue\":true}]";
@@ -123,6 +130,34 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
     }
 
 
+    private void pageNext() {
+        if (moveCounter > -1 && moveCounter < form.getFielsModel().size()) {
+            int currentIndex = (moveCounter + 1);
+            renderValues(currentIndex, false);
+        }
+    }
+
+    private void pagePrevious() {
+        if (moveCounter > -1 && moveCounter <= form.getFielsModel().size()) {
+            renderValues(moveCounter - 1, true);
+        }
+    }
+
+    private void renderValues(int startIndex, boolean isPreviousCall) {
+        if (startIndex > -1) {
+            StringBuilder html = new StringBuilder();
+            List<Field> valuesToRender = new ArrayList<Field>();
+            int checkSteps = 1;
+            while (startIndex < form.getFielsModel().size()) {
+                valuesToRender.add(form.getFielsModel().get(startIndex));
+                if (checkSteps == defaultStep) break;
+                startIndex++;
+                checkSteps++;
+            }
+            moveCounter = startIndex;
+        }
+    }
+
     /**
      * @param fields
      */
@@ -149,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
                 } else if (field.getType().equalsIgnoreCase("RADIO")) {
                     if (field.getValues() != null && field.getValues().size() != 0) {
                         if (field.getSetSelectedRadioButton() == null) {
-                            Toast.makeText(this, "Please selected Radio " , Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Please selected Radio ", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     }
