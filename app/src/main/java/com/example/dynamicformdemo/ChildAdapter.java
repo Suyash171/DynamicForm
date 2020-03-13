@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -107,10 +108,17 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
                 radioGroup.setOrientation(RadioGroup.VERTICAL); //or RadioGroup.VERTICAL
 
                 if (field.getValues() != null && field.getValues().size() != 0){
-                    for (Field values: field.getValues()) {
-                        rb= new RadioButton(mContext);
-                        rb.setText("Radio " + values.getName());
-                        rb.setId(values.getMax());
+                    for (int i = 0; i < field.getValues().size(); i++) {
+                        rb = new RadioButton(mContext);
+                        rb.setText("Radio " + field.getValues().get(i).getName());
+                        rb.setId(field.getValues().get(i).getMax());
+                        RadioButton finalRb = rb;
+                        int finalI = i;
+                        rb.setOnCheckedChangeListener((compoundButton, b) -> {
+                            if (b){
+                                fieldsModel.getFields().get(position).setSetSelectedRadioButton(field.getValues().get(finalI).getMax());
+                            }
+                        });
                         radioGroup.addView(rb);
                     }
                 }

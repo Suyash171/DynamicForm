@@ -45,6 +45,7 @@ public class Field {
     private List<Field> values = null;
 
     private String enteredValue;
+    private Integer setSelectedRadioButton;
 
     public String getName() {
         return name;
@@ -132,6 +133,14 @@ public class Field {
 
     public void setComponentType(String componentType) {
         this.componentType = componentType;
+    }
+
+    public Integer getSetSelectedRadioButton() {
+        return setSelectedRadioButton;
+    }
+
+    public void setSetSelectedRadioButton(Integer setSelectedRadioButton) {
+        this.setSelectedRadioButton = setSelectedRadioButton;
     }
 
 }
