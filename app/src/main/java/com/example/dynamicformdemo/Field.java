@@ -30,6 +30,16 @@ public class Field {
     @Expose
     private Boolean defaultValue;
 
+
+    @SerializedName("emailvalidation")
+    @Expose
+    private Boolean emailvalidation;
+
+    @SerializedName("componentType")
+    @Expose
+    private String componentType;
+
+
     @SerializedName("values")
     @Expose
     private List<Field> values = null;
@@ -107,4 +117,21 @@ public class Field {
     public void setEnteredValue(String enteredValue) {
         this.enteredValue = enteredValue;
     }
+
+    public Boolean getEmailvalidation() {
+        return emailvalidation;
+    }
+
+    public void setEmailvalidation(Boolean emailvalidation) {
+        this.emailvalidation = emailvalidation;
+    }
+
+    public String getComponentType() {
+        return componentType;
+    }
+
+    public void setComponentType(String componentType) {
+        this.componentType = componentType;
+    }
+
 }
