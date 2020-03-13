@@ -148,12 +148,9 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
                     }
                 } else if (field.getType().equalsIgnoreCase("RADIO")) {
                     if (field.getValues() != null && field.getValues().size() != 0) {
-                        for (Field values : field.getValues()) {
-                            //check selected radio button
-                            if (field.getSetSelectedRadioButton() != null && values.getMax().equals(field.getSetSelectedRadioButton())) {
-                                Toast.makeText(this, "You have selected " + values.getName(), Toast.LENGTH_SHORT).show();
-                                return;
-                            }
+                        if (field.getSetSelectedRadioButton() == null) {
+                            Toast.makeText(this, "Please selected Radio " , Toast.LENGTH_SHORT).show();
+                            return;
                         }
                     }
                 }
