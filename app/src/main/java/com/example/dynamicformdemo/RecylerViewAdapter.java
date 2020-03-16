@@ -78,10 +78,19 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
         } else if (field.getType().equalsIgnoreCase("TEXT")) {
             View view = inflater.inflate(R.layout.layout_edit, null);
             EditText editText = view.findViewById(R.id.et);
-            editText.setText("");
+
+            if (field.getEnteredValue() != null){
+                editText.setText(field.getEnteredValue());
+                editText.setError(null);
+            }else {
+                editText.setText("");
+                editText.setError(null);
+            }
 
             if (field.getErrorPosition() != -1){
                 editText.setError(field.getSetError());
+            }else {
+                editText.setError(null);
             }
 
             //update text entered
