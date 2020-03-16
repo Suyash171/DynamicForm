@@ -80,6 +80,10 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
             EditText editText = view.findViewById(R.id.et);
             editText.setText("");
 
+            if (field.getErrorPosition() != -1){
+                editText.setError(field.getSetError());
+            }
+
             //update text entered
             editText.addTextChangedListener(new TextWatcher() {
                 @Override

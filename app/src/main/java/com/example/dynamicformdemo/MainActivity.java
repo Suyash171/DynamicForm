@@ -146,21 +146,29 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
      * @param fields
      */
     private void checkValidations(ArrayList<Field> fields) {
-        for (Field field : fields) {
+
+        for (int i = 0; i < fields.size(); i++) {
+            Field field = fields.get(i);
             if (field.getDefaultValue()) {
                 //check if edit text
                 if (field.getType().equalsIgnoreCase("TEXT")) {
                     //check component type
                     if (field.getComponentType().equalsIgnoreCase("NAME")) {
                         if (field.getEnteredValue() == null || field.getEnteredValue().isEmpty()) {
-                            Toast.makeText(this, "Please enter " + field.getName(), Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(this, "Please enter " + field.getName(), Toast.LENGTH_SHORT).show();
+                            field.setErrorPosition(i);
+                            field.setSetError("Please enter " + field.getName());
+                            adapter.notifyItemChanged(i);
                             return;
                         }
                     } else if (field.getComponentType().equalsIgnoreCase("EMAIL")) {
                         if (field.getEmailvalidation()) {
                             boolean isValid = isValidEmail(field.getEnteredValue());
                             if (!isValid) {
-                                Toast.makeText(this, "Please enter valid email", Toast.LENGTH_SHORT).show();
+                               // Toast.makeText(this, "Please enter valid email", Toast.LENGTH_SHORT).show();
+                                field.setErrorPosition(i);
+                                field.setSetError("Please enter valid email");
+                                adapter.notifyItemChanged(i);
                                 return;
                             }
                         }

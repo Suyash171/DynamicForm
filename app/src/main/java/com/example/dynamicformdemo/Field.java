@@ -30,7 +30,6 @@ public class Field {
     @Expose
     private Boolean defaultValue;
 
-
     @SerializedName("emailvalidation")
     @Expose
     private Boolean emailvalidation;
@@ -39,13 +38,16 @@ public class Field {
     @Expose
     private String componentType;
 
-
     @SerializedName("values")
     @Expose
     private List<Field> values = null;
 
     private String enteredValue;
     private Integer setSelectedRadioButton;
+
+    private int errorPosition = -1;
+    private String setError;
+
 
     private boolean isSelected = false;
 
@@ -146,10 +148,25 @@ public class Field {
     }
 
 
+    public int getErrorPosition() {
+        return errorPosition;
+    }
+
+    public void setErrorPosition(int errorPosition) {
+        this.errorPosition = errorPosition;
+    }
+
     public boolean isSelected() {
         return isSelected;
     }
 
+    public String getSetError() {
+        return setError;
+    }
+
+    public void setSetError(String setError) {
+        this.setError = setError;
+    }
     public void setSelected(boolean selected) {
         isSelected = selected;
     }
