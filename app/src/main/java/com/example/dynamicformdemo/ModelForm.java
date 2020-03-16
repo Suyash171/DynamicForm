@@ -3,20 +3,12 @@ package com.example.dynamicformdemo;
 import java.util.ArrayList;
 import java.util.List;
 
+//Here use observables
 public class ModelForm {
 
-    private List<String> selectedCheckBoxes = new ArrayList<>();
     private ArrayList<Field> fielsModel = new ArrayList<>();
 
     public ModelForm() {
-    }
-
-    public List<String> getSelectedCheckBoxes() {
-        return selectedCheckBoxes;
-    }
-
-    public void setSelectedCheckBoxes(List<String> selectedCheckBoxes) {
-        this.selectedCheckBoxes = selectedCheckBoxes;
     }
 
     public ArrayList<Field> getFielsModel() {

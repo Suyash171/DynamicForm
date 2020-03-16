@@ -112,7 +112,6 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
                         rb = new RadioButton(mContext);
                         rb.setText("Radio " + field.getValues().get(i).getName());
                         rb.setId(field.getValues().get(i).getMax());
-                        RadioButton finalRb = rb;
                         int finalI = i;
                         rb.setOnCheckedChangeListener((compoundButton, b) -> {
                             if (b){
@@ -208,11 +207,6 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.MyViewHolder
 
             // llvContainer = itemView.findViewById(R.id.insert_point);
         }
-    }
-
-
-    public ChildAdapter.iOnClickListener getiOnClickListener() {
-        return iOnClickListener;
     }
 
     public void setiOnClickListener(ChildAdapter.iOnClickListener iOnClickListener) {

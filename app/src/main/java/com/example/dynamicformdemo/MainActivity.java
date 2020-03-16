@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
         isInflator = getIntent().getBooleanExtra("KEY_TAG", false);
 
         if (isInflator) {
-            adapter = new RecylerViewAdapter(form.getFielsModel(), this);
+            adapter = new RecylerViewAdapter(this);
             adapter.setOnClickListener(this);
             recyclerView.setAdapter(adapter);
         } else {
@@ -121,7 +121,12 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
             }*/
             //FieldsSingleTon.getInstance().setFieldArrayList((ArrayList<Field>) model.getFields());
             form.setFielsModel((ArrayList<Field>) model.getFields());
-            childAdapter.addAll(form.getFielsModel());
+            if (isInflator){
+                adapter.addAll(form.getFielsModel());
+            }else {
+                childAdapter.addAll(form.getFielsModel());
+            }
+
         }
 
         btnSubmit.setOnClickListener(view -> {
@@ -130,33 +135,6 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
     }
 
 
-    private void pageNext() {
-        if (moveCounter > -1 && moveCounter < form.getFielsModel().size()) {
-            int currentIndex = (moveCounter + 1);
-            renderValues(currentIndex, false);
-        }
-    }
-
-    private void pagePrevious() {
-        if (moveCounter > -1 && moveCounter <= form.getFielsModel().size()) {
-            renderValues(moveCounter - 1, true);
-        }
-    }
-
-    private void renderValues(int startIndex, boolean isPreviousCall) {
-        if (startIndex > -1) {
-            StringBuilder html = new StringBuilder();
-            List<Field> valuesToRender = new ArrayList<Field>();
-            int checkSteps = 1;
-            while (startIndex < form.getFielsModel().size()) {
-                valuesToRender.add(form.getFielsModel().get(startIndex));
-                if (checkSteps == defaultStep) break;
-                startIndex++;
-                checkSteps++;
-            }
-            moveCounter = startIndex;
-        }
-    }
 
     /**
      * @param fields
