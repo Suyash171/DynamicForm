@@ -24,6 +24,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.gipl.imagepicker.ImageResult;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,16 +104,6 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
             View view = inflater.inflate(R.layout.layout_radiogroup, null);
             RadioGroup radioGroup = view.findViewById(R.id.radioGrp);
 
-           /*RadioButton[] rb = new RadioButton[5];
-            radioGroup.setOrientation(RadioGroup.HORIZONTAL); //or RadioGroup.VERTICAL
-            for (int i = 0; i < 3; i++) {
-                rb[i] = new RadioButton(mContext);
-                rb[i].setText("Position" + i);
-                rb[i].setId(i + 100);
-                radioGroup.addView(rb[i]);
-            }
-            holder.llvContainer.addView(view, 0);*/
-
             RadioButton rb;
             radioGroup.setOrientation(RadioGroup.VERTICAL); //or RadioGroup.VERTICAL
 
@@ -130,8 +122,6 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
                 }
                 holder.llvContainer.addView(view, 0);
             }
-
-
         } else if (field.getType().equalsIgnoreCase("CHECKBOX")) {
             View view = inflater.inflate(R.layout.layout_checkbox, null);
             LinearLayout linearLayout = view.findViewById(R.id.checkbox);
@@ -152,19 +142,6 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
 
             holder.llvContainer.addView(linearLayout, 0);
 
-           /* for (int i = 0; i < 5; i++) {
-                final CheckBox ch = new CheckBox(mContext);
-                ch.setId(i);
-                ch.setText("Cheers !! "+i);
-                ch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
-                    }
-                });
-                linearLayout.addView(ch);
-            }
-            holder.llvContainer.addView(linearLayout, 0);*/
         } else if (field.getType().equalsIgnoreCase("UPLOAD_IMAGE")) {
             View view = inflater.inflate(R.layout.layout_upload_image, null);
             LinearLayout linearLayout = view.findViewById(R.id.llvImage);
@@ -181,6 +158,20 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
             });
 
             holder.llvContainer.addView(view, 0);
+        }else if (field.getType().equalsIgnoreCase("QUESTIONS")){
+            View questions = inflater.inflate(R.layout.layout_multichoice,null);
+            ConstraintLayout layout =  questions.findViewById(R.id.quesRoot);
+            RecyclerView rvQuestion = questions.findViewById(R.id.rvList);
+            TextView tvQuestion = questions.findViewById(R.id.tvQuestion);
+
+            tvQuestion.setText(field.getName());
+
+            SingleItemAdapter singleItemAdapter = new SingleItemAdapter();
+            rvQuestion.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false));
+            singleItemAdapter.addAll((ArrayList<Field>) field.getValues());
+            rvQuestion.setAdapter(singleItemAdapter);
+
+            holder.llvContainer.addView(questions, 0);
         }
     }
 
@@ -192,7 +183,7 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public ConstraintLayout llvContainer;
+        public LinearLayout llvContainer;
         public RecyclerView recylerView;
 
         public MyViewHolder(View v) {

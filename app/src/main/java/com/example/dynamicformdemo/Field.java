@@ -47,6 +47,8 @@ public class Field {
     private String enteredValue;
     private Integer setSelectedRadioButton;
 
+    private boolean isSelected = false;
+
     public String getName() {
         return name;
     }
@@ -143,4 +145,12 @@ public class Field {
         this.setSelectedRadioButton = setSelectedRadioButton;
     }
 
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
 }
