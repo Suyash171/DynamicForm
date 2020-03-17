@@ -173,7 +173,6 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
             holder.llvContainer.addView(view, 0);
         }else if (field.getType().equalsIgnoreCase("QUESTIONS")){
             View questions = inflater.inflate(R.layout.layout_multichoice,null);
-            ConstraintLayout layout =  questions.findViewById(R.id.quesRoot);
             RecyclerView rvQuestion = questions.findViewById(R.id.rvList);
             TextView tvQuestion = questions.findViewById(R.id.tvQuestion);
 
