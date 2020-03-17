@@ -6,12 +6,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -20,6 +25,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.dynamicformdemo.api.GetDataService;
+import com.example.dynamicformdemo.api.RetrofitClientInstance;
 import com.gipl.imagepicker.ImagePickerDialog;
 import com.gipl.imagepicker.ImageResult;
 import com.gipl.imagepicker.PickerConfiguration;
@@ -29,11 +36,25 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnClickListener, RecylerViewAdapter.iOnClickListener {
 
@@ -73,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
 
 
     //String dummyForm = "{\"players\":[{\"name\":\"fieldC\",\"type\":\"CHECKBOX\",\"defaultValue\":true,\"values\":[{\"name\":\"check 1\",\"type\":\"STRING\",\"max\":101,\"defaultValue\":false},{\"name\":\"check 2\",\"type\":\"STRING\",\"max\":102,\"defaultValue\":false}]},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"CHECKBOX\",\"defaultValue\":true,\"values\":[{\"name\":\"check 1\",\"type\":\"STRING\",\"max\":103,\"defaultValue\":false},{\"name\":\"check 2\",\"type\":\"STRING\",\"max\":104,\"defaultValue\":false}]},{\"name\":\"fieldC\",\"type\":\"TEXT\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"RADIO\",\"defaultValue\":true,\"values\":[{\"name\":\"Radio 1\",\"type\":\"STRING\",\"max\":3,\"defaultValue\":false},{\"name\":\"Radio 2\",\"type\":\"STRING\",\"max\":4,\"defaultValue\":false}]},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"UPLOAD_IMAGE\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"TEXT\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"RADIO\",\"defaultValue\":true,\"values\":[{\"name\":\"Radio 1\",\"type\":\"STRING\",\"max\":1,\"defaultValue\":false},{\"name\":\"Radio 2\",\"type\":\"STRING\",\"max\":2,\"defaultValue\":false}]},{\"name\":\"fieldC\",\"type\":\"TEXT\",\"defaultValue\":true},{\"name\":\"fieldC\",\"type\":\"CHECKBOX\",\"defaultValue\":true,\"values\":[{\"name\":\"check 1\",\"type\":\"STRING\",\"max\":105,\"defaultValue\":false},{\"name\":\"check 2\",\"type\":\"STRING\",\"max\":106,\"defaultValue\":false}]},{\"name\":\"fieldC\",\"type\":\"RADIO\",\"defaultValue\":true,\"values\":[{\"name\":\"Radio 1\",\"type\":\"STRING\",\"max\":7,\"defaultValue\":false},{\"name\":\"Radio 2\",\"type\":\"STRING\",\"max\":8,\"defaultValue\":false}]},{\"name\":\"fieldC\",\"type\":\"STRING\",\"defaultValue\":true}]}";
+    ProgressDialog progressDoalog;
 
     public static void start(Context context, boolean isInflator) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -92,6 +114,23 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
 
         isInflator = getIntent().getBooleanExtra("KEY_TAG", false);
 
+       // addData();
+
+        if (isNetworkConnected(this)) {
+            getJsonFromServer();
+        }else {
+            addData();
+        }
+
+        createPickerConfiguration();
+
+        btnSubmit.setOnClickListener(view -> {
+            checkValidations(form.getFielsModel());
+        });
+    }
+
+
+    private void prepareAdapter(){
         if (isInflator) {
             adapter = new RecylerViewAdapter(this);
             adapter.setOnClickListener(this);
@@ -101,9 +140,23 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
             childAdapter.setiOnClickListener(this);
             recyclerView.setAdapter(childAdapter);
         }
+    }
 
-        createPickerConfiguration();
+    public static boolean isNetworkConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        }
+        return false;
+    }
 
+
+    /**
+     *
+     */
+    private void addData(){
+        prepareAdapter();
         GsonBuilder builder = new GsonBuilder();
         builder.setPrettyPrinting();
         //LinearLayout lv = findViewById(R.id.lv);
@@ -114,32 +167,49 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
         FieldsModel model = gson.fromJson(dummyForm, FieldsModel.class);
 
         // ArrayList<FieldsModel> playersList= (ArrayList<FieldsModel>) fromJson(dummyForm, new TypeToken<ArrayList<Field>>() {}.getType());
+        addDataToAdapters(model);
+    }
 
-        if (model != null) {
-         /*   int count = 0;
-            for (Field field : model.getFields()) {
-                if (count <= 10){
-                    dataset.add(field);
-                    count++;
-                }else {
-                    count = 0;
-                    return;
-                }
-            }*/
-            //FieldsSingleTon.getInstance().setFieldArrayList((ArrayList<Field>) model.getFields());
-            form.setFielsModel((ArrayList<Field>) model.getFields());
-            if (isInflator){
+    private void addDataToAdapters(FieldsModel fieldsModel){
+        if (fieldsModel != null) {
+            form.setFielsModel((ArrayList<Field>) fieldsModel.getFields());
+            if (isInflator) {
                 adapter.addAll(form.getFielsModel());
-            }else {
+            } else {
                 childAdapter.addAll(form.getFielsModel());
             }
         }
-
-        btnSubmit.setOnClickListener(view -> {
-            checkValidations(form.getFielsModel());
-        });
     }
 
+    /**
+     *
+     */
+    private void getJsonFromServer() {
+
+        progressDoalog = new ProgressDialog(MainActivity.this);
+        progressDoalog.setMessage("Loading....");
+        progressDoalog.show();
+
+        /*Create handle for the RetrofitInstance interface*/
+        GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
+        Call<FieldsModel> call = service.getAllJson();
+        call.enqueue(new Callback<FieldsModel>() {
+            @Override
+            public void onResponse(Call<FieldsModel> call, Response<FieldsModel> response) {
+                progressDoalog.dismiss();
+                FieldsModel fieldsModel = response.body();
+                if (fieldsModel != null) {
+                    prepareAdapter();
+                    addDataToAdapters(fieldsModel);
+                }
+            }
+            @Override
+            public void onFailure(Call<FieldsModel> call, Throwable t) {
+                progressDoalog.dismiss();
+                Toast.makeText(MainActivity.this, "Exception " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
 
     /**
@@ -161,20 +231,20 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
                             adapter.notifyItemChanged(i);
                             recyclerView.scrollToPosition(i);
                             return;
-                        }else {
+                        } else {
                             field.setErrorPosition(-1);
                         }
                     } else if (field.getComponentType().equalsIgnoreCase("EMAIL")) {
                         if (field.getEmailvalidation()) {
                             boolean isValid = isValidEmail(field.getEnteredValue());
                             if (!isValid) {
-                               // Toast.makeText(this, "Please enter valid email", Toast.LENGTH_SHORT).show();
+                                // Toast.makeText(this, "Please enter valid email", Toast.LENGTH_SHORT).show();
                                 field.setErrorPosition(i);
                                 field.setSetError("Please enter valid email");
                                 adapter.notifyItemChanged(i);
                                 recyclerView.scrollToPosition(i);
                                 return;
-                            }else{
+                            } else {
                                 field.setErrorPosition(-1);
                             }
                         }
@@ -183,11 +253,62 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
                     if (field.getValues() != null && field.getValues().size() != 0) {
                         if (field.getSetSelectedRadioButton() == null) {
                             Toast.makeText(this, "Please selected Radio ", Toast.LENGTH_SHORT).show();
+                            recyclerView.scrollToPosition(i);
                             return;
                         }
                     }
                 }
             }
+        }
+    }
+
+    private boolean writeResponseBodyToDisk(ResponseBody body) {
+        try {
+            // todo change the file location/name according to your needs
+            File futureStudioIconFile = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + "dummy.json");
+
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+
+            try {
+                byte[] fileReader = new byte[4096];
+
+                long fileSize = body.contentLength();
+                long fileSizeDownloaded = 0;
+
+                inputStream = body.byteStream();
+                outputStream = new FileOutputStream(futureStudioIconFile);
+
+                while (true) {
+                    int read = inputStream.read(fileReader);
+
+                    if (read == -1) {
+                        break;
+                    }
+
+                    outputStream.write(fileReader, 0, read);
+
+                    fileSizeDownloaded += read;
+
+                    Log.d("File Download: " , fileSizeDownloaded + " of " + fileSize);
+                }
+
+                outputStream.flush();
+
+                return true;
+            } catch (IOException e) {
+                return false;
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            }
+        } catch (IOException e) {
+            return false;
         }
     }
 

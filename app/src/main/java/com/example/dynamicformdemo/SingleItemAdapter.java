@@ -82,7 +82,6 @@ public class SingleItemAdapter extends RecyclerView.Adapter<SingleItemAdapter.My
         }
     }
 
-
     @Override
     public int getItemCount() {
         return singleItemArrayList.size();

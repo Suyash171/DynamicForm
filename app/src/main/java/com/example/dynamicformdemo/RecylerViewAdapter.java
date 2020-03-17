@@ -40,6 +40,7 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
     private iOnClickListener onClickListener;
     private ImageAdapter imageAdapter;
     private FieldsModel fieldsModel = new FieldsModel();
+    private ViewGroup mParent;
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public RecylerViewAdapter(Context context) {
@@ -56,6 +57,7 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // create a new view
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_list_item, parent, false);
+        mParent = parent;
         return new MyViewHolder(view);
     }
 
@@ -71,18 +73,20 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
         holder.llvContainer.removeAllViews();
 
         if (field.getType().equalsIgnoreCase("STRING")) {
-            View view = inflater.inflate(R.layout.layout_tv_label, null);
+            View view = inflater.inflate(R.layout.layout_tv_label,mParent,false);
+           // View view = inflater.inflate(R.layout.layout_tv_label, null);
             TextView tvName = view.findViewById(R.id.tv_name);
             tvName.setText(field.getName());
             holder.llvContainer.addView(view, 0);
         } else if (field.getType().equalsIgnoreCase("TEXT")) {
-            View view = inflater.inflate(R.layout.layout_edit, null);
+            View view = inflater.inflate(R.layout.layout_edit, mParent,false);
             EditText editText = view.findViewById(R.id.et);
 
             if (field.getEnteredValue() != null){
                 editText.setText(field.getEnteredValue());
                 editText.setError(null);
             }else {
+                editText.setHint(field.getName());
                 editText.setText("");
                 editText.setError(null);
             }
@@ -114,7 +118,7 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
             editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
             holder.llvContainer.addView(view, 0);
         } else if (field.getType().equalsIgnoreCase("RADIO")) {
-            View view = inflater.inflate(R.layout.layout_radiogroup, null);
+            View view = inflater.inflate(R.layout.layout_radiogroup,mParent ,false);
             RadioGroup radioGroup = view.findViewById(R.id.radioGrp);
 
             RadioButton rb;
@@ -136,7 +140,7 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
                 holder.llvContainer.addView(view, 0);
             }
         } else if (field.getType().equalsIgnoreCase("CHECKBOX")) {
-            View view = inflater.inflate(R.layout.layout_checkbox, null);
+            View view = inflater.inflate(R.layout.layout_checkbox, mParent,false);
             LinearLayout linearLayout = view.findViewById(R.id.checkbox);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
 
@@ -156,7 +160,7 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
             holder.llvContainer.addView(linearLayout, 0);
 
         } else if (field.getType().equalsIgnoreCase("UPLOAD_IMAGE")) {
-            View view = inflater.inflate(R.layout.layout_upload_image, null);
+            View view = inflater.inflate(R.layout.layout_upload_image, mParent,false);
             LinearLayout linearLayout = view.findViewById(R.id.llvImage);
             TextView button = linearLayout.findViewById(R.id.btn_upload);
             RecyclerView recyclerView = linearLayout.findViewById(R.id.rv_images);
@@ -172,7 +176,7 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
 
             holder.llvContainer.addView(view, 0);
         }else if (field.getType().equalsIgnoreCase("QUESTIONS")){
-            View questions = inflater.inflate(R.layout.layout_multichoice,null);
+            View questions = inflater.inflate(R.layout.layout_multichoice,mParent,false);
             RecyclerView rvQuestion = questions.findViewById(R.id.rvList);
             TextView tvQuestion = questions.findViewById(R.id.tvQuestion);
 
@@ -195,7 +199,7 @@ public class RecylerViewAdapter extends RecyclerView.Adapter<RecylerViewAdapter.
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public LinearLayout llvContainer;
+        public ConstraintLayout llvContainer;
         public RecyclerView recylerView;
 
         public MyViewHolder(View v) {
