@@ -158,7 +158,7 @@ public class GetContactDetailsActivity extends AppCompatActivity {
                         new String[]{id}, null);
                 while (cur1.moveToNext()) {
                     //to get the contact names
-                    String name=cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                    String name= cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
                     Log.e("Name :", name);
                     String email = cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
                     Log.e("Email", email);
@@ -199,7 +199,7 @@ public class GetContactDetailsActivity extends AppCompatActivity {
             String[] columns = {ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts.HAS_PHONE_NUMBER};
 
             // query for everything email
-           // cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, columns, null, null, null);
+            // cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, columns, null, null, null);
             cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI,  null, ContactsContract.CommonDataKinds.Email.CONTACT_ID + "=?", new String[] { id }, null);
 
             int nameId = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
