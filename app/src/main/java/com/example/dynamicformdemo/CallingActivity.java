@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class CallingActivity extends AppCompatActivity  {
 
-    private Button btnInlfator,btnRecyler,btnCustomInflator;
+    private Button btnInlfator,btnRecyler,btnFetchContact;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -17,6 +17,8 @@ public class CallingActivity extends AppCompatActivity  {
 
         btnInlfator = findViewById(R.id.btnINflate);
         btnRecyler = findViewById(R.id.btnRecylerView);
+        btnFetchContact = findViewById(R.id.btnFetchDetails);
+
         //btnCustomInflator = findViewById(R.id.btnCustom);
 
         btnRecyler.setOnClickListener(view -> {
@@ -27,6 +29,9 @@ public class CallingActivity extends AppCompatActivity  {
             MainActivity.start(this,true);
         });
 
+        btnFetchContact.setOnClickListener(view -> {
+            GetContactDetailsActivity.start(this);
+        });
 
     }
 
