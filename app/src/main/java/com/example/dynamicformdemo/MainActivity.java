@@ -2,6 +2,7 @@ package com.example.dynamicformdemo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,6 +14,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -27,6 +29,8 @@ import android.widget.Toast;
 
 import com.example.dynamicformdemo.api.GetDataService;
 import com.example.dynamicformdemo.api.RetrofitClientInstance;
+import com.example.dynamicformdemo.viewpager.NewFormModel;
+import com.example.dynamicformdemo.viewpager.ParentRecylerViewItem;
 import com.gipl.imagepicker.ImagePickerDialog;
 import com.gipl.imagepicker.ImageResult;
 import com.gipl.imagepicker.PickerConfiguration;
@@ -50,6 +54,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -69,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
     private boolean isInflator = false;
     private Button btnSubmit;
     private ModelForm form = new ModelForm();
+    private ParentRecylerViewItem parentRecylerViewItem;
 
     private static final int defaultStep = 5;
     private int moveCounter;
@@ -122,13 +130,13 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
             addData();
         }
 
+        //sortAndCreateParentAdapter();
         createPickerConfiguration();
 
         btnSubmit.setOnClickListener(view -> {
             checkValidations(form.getFielsModel());
         });
     }
-
 
     private void prepareAdapter(){
         if (isInflator) {
@@ -140,6 +148,33 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
             childAdapter.setiOnClickListener(this);
             recyclerView.setAdapter(childAdapter);
         }
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void sortAndCreateParentAdapter(){
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        FieldsModel model = gson.fromJson(dummyForm, FieldsModel.class);
+        NewFormModel newFormModel = new NewFormModel();
+
+        if (model != null){
+            final AtomicInteger counter = new AtomicInteger(0);
+            final int size = 2;
+
+            Collection<List<Field>> partitioned = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                partitioned = model.getFields().stream()
+                        .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / size))
+                        .values();
+            }
+            partitioned.forEach(System.out::println);
+            List theList = new ArrayList(partitioned);
+            newFormModel.setParentList(theList);
+            parentRecylerViewItem.addAll((ArrayList<Field>) newFormModel.getParentList());
+            //Log.d("You Value is  :-" , partitioned.forEach(System.out::println));
+        }
+
     }
 
     public static boolean isNetworkConnected(Context context) {
@@ -185,7 +220,6 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
      *
      */
     private void getJsonFromServer() {
-
         progressDoalog = new ProgressDialog(MainActivity.this);
         progressDoalog.setMessage("Loading....");
         progressDoalog.show();
@@ -262,63 +296,8 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
         }
     }
 
-    private boolean writeResponseBodyToDisk(ResponseBody body) {
-        try {
-            // todo change the file location/name according to your needs
-            File futureStudioIconFile = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + "dummy.json");
-
-            InputStream inputStream = null;
-            OutputStream outputStream = null;
-
-            try {
-                byte[] fileReader = new byte[4096];
-
-                long fileSize = body.contentLength();
-                long fileSizeDownloaded = 0;
-
-                inputStream = body.byteStream();
-                outputStream = new FileOutputStream(futureStudioIconFile);
-
-                while (true) {
-                    int read = inputStream.read(fileReader);
-
-                    if (read == -1) {
-                        break;
-                    }
-
-                    outputStream.write(fileReader, 0, read);
-
-                    fileSizeDownloaded += read;
-
-                    Log.d("File Download: " , fileSizeDownloaded + " of " + fileSize);
-                }
-
-                outputStream.flush();
-
-                return true;
-            } catch (IOException e) {
-                return false;
-            } finally {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-
-                if (outputStream != null) {
-                    outputStream.close();
-                }
-            }
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
-
     public static boolean isValidEmail(String target) {
         return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
-    }
-
-    public static Object fromJson(String jsonString, Type type) {
-        return new Gson().fromJson(jsonString, type);
     }
 
 
@@ -336,14 +315,6 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
     }
 
 
-    public static <T> List<T> toList(String json, Class<T> clazz) {
-        if (null == json) {
-            return null;
-        }
-        Gson gson = new Gson();
-        return gson.fromJson(json, new TypeToken<T>() {
-        }.getType());
-    }
 
     @Override
     public void onImageUpload(int position) {
@@ -385,35 +356,4 @@ public class MainActivity extends AppCompatActivity implements ChildAdapter.iOnC
                 .setSetCustomDialog(true);
 
     }
-
-
-    /**
-     * @param options
-     * @param reqWidth
-     * @param reqHeight
-     * @return
-     */
-    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) >= reqHeight
-                    && (halfWidth / inSampleSize) >= reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
-    }
-
-
 }
