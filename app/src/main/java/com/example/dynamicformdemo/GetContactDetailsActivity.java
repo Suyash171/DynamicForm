@@ -20,12 +20,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static android.provider.CalendarContract.Calendars.NAME;
 
@@ -37,11 +39,11 @@ public class GetContactDetailsActivity extends AppCompatActivity {
     private TextView tvName;
 
 
-    ArrayList<String> namelist=new ArrayList<String>();
-    ArrayList<String> number=new ArrayList<String>();
-    ArrayList<String> contact_id=new ArrayList<String>();
-    ArrayList<String> contact_image_uri=new ArrayList<String>();
-    ArrayList<String> contact_email=new ArrayList<String>();
+    ArrayList<String> namelist = new ArrayList<String>();
+    ArrayList<String> number = new ArrayList<String>();
+    ArrayList<String> contact_id = new ArrayList<String>();
+    ArrayList<String> contact_image_uri = new ArrayList<String>();
+    ArrayList<String> contact_email = new ArrayList<String>();
     String email;
 
     public static void start(Context context) {
@@ -97,7 +99,7 @@ public class GetContactDetailsActivity extends AppCompatActivity {
         }
     }
 
-    public void askForContactPermission(){
+    public void askForContactPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
 
@@ -135,20 +137,19 @@ public class GetContactDetailsActivity extends AppCompatActivity {
                     // app-defined int constant. The callback method gets the
                     // result of the request.
                 }
-            }else{
+            } else {
                 getContactDetails();
             }
-        }
-        else{
+        } else {
             getContactDetails();
         }
     }
 
 
-    public ArrayList<String> getNameEmailDetails(){
+    public ArrayList<String> getNameEmailDetails() {
         ArrayList<String> names = new ArrayList<String>();
         ContentResolver cr = getContentResolver();
-        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,null, null, null, null);
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
         if (cur.getCount() > 0) {
             while (cur.moveToNext()) {
                 String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
@@ -158,11 +159,11 @@ public class GetContactDetailsActivity extends AppCompatActivity {
                         new String[]{id}, null);
                 while (cur1.moveToNext()) {
                     //to get the contact names
-                    String name= cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                    String name = cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
                     Log.e("Name :", name);
                     String email = cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
                     Log.e("Email", email);
-                    if(email!=null){
+                    if (email != null) {
                         names.add(name);
                     }
                 }
@@ -186,57 +187,71 @@ public class GetContactDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void getSelectedContactDetails(Intent data){
+    private void getSelectedContactDetails(Intent data) {
         Cursor cursor = null;
-        String email = "", name = "";
+        String email = "", name = "", contactNumber = "";
+        StringBuilder phoneBuilder = new StringBuilder();
+        StringBuilder emailBuilder = new StringBuilder();
 
         try {
             Uri result = data.getData();
-            Log.v(GetContactDetailsActivity.class.getName(), "Got a contact result: " + result.toString());
-
             // get the contact id from the Uri
             String id = result.getLastPathSegment();
-            String[] columns = {ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts.HAS_PHONE_NUMBER};
 
-            // query for everything email
-            // cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, columns, null, null, null);
-            cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI,  null, ContactsContract.CommonDataKinds.Email.CONTACT_ID + "=?", new String[] { id }, null);
+            cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, ContactsContract.CommonDataKinds.Email.CONTACT_ID + "=?", new String[]{id}, null);
 
+            //Fetch Display Name
             int nameId = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
             int emailIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
 
-            // let's just get the first email
-            if (cursor.moveToFirst()) {
-                email = cursor.getString(emailIdx);
+            //retrive multiple emails
+            while (cursor.moveToNext()) {
+                //get single email using id
+                //email = cursor.getString(emailIdx);
                 name = cursor.getString(nameId);
                 Log.v(GetContactDetailsActivity.class.getName(), "Got email: " + email);
-            } else {
-                Log.w(GetContactDetailsActivity.class.getName(), "No results");
+                email = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+                emailBuilder.append(email + ", \n");
+                Log.d("Emails" ,"" + email);
             }
+
+            // Get Phone Number....
+            Uri URI_PHONE = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+            String SELECTION_PHONE = ContactsContract.CommonDataKinds.Phone.CONTACT_ID+ " = ?";
+            String[] SELECTION_ARRAY_PHONE = new String[] { id };
+
+            Cursor currPhone = getContentResolver().query(URI_PHONE, null,SELECTION_PHONE, SELECTION_ARRAY_PHONE, null);
+            int indexPhoneNo = currPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+            int indexPhoneType = currPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
+
+            if (currPhone.getCount() > 0) {
+                while (currPhone.moveToNext()) {
+                    String phoneNoStr = currPhone.getString(indexPhoneNo);
+                    String phoneTypeStr = currPhone.getString(indexPhoneType);
+                    phoneBuilder.append(phoneNoStr + ", \n");
+                    Log.d("Phone Numbers " , " " + phoneNoStr.concat(" Type :".concat(phoneTypeStr)));
+                }
+            }
+
+            currPhone.close();
+
         } catch (Exception e) {
             Log.e(GetContactDetailsActivity.class.getName(), "Failed to get email data", e);
         } finally {
             if (cursor != null) {
                 cursor.close();
             }
-            tvName.setText("Name : " + name.concat("   Email :" + email));
+            tvName.setText("Name : " + name.concat(" \n Email :" + emailBuilder.toString()).concat(" \n Contact : " + phoneBuilder.toString()));
             if (email.length() == 0 && name.length() == 0) {
-                Toast.makeText(this, "No Email for Selected Contact",Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "No Email for Selected Contact", Toast.LENGTH_LONG).show();
             }
         }
-    }
-
-
-
-    private void getFinalContactDetails(Intent data){
-        Uri result = data.getData();
-
     }
 
     public ArrayList<String> ShowContact() {
 
         ArrayList<String> nameList = new ArrayList<String>();
-        ArrayList<String>  phoneList = new ArrayList<String>();
+        ArrayList<String> phoneList = new ArrayList<String>();
         ArrayList<String> emailList = new ArrayList<String>();
 
         ContentResolver cr = getContentResolver();
@@ -249,7 +264,7 @@ public class GetContactDetailsActivity extends AppCompatActivity {
 
                 if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
                     // Query phone here. Covered next
-                    Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[] { id }, null);
+                    Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
                     while (pCur.moveToNext()) {
                         // Do something with phones
                         String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
@@ -274,19 +289,18 @@ public class GetContactDetailsActivity extends AppCompatActivity {
     }
 
 
-
     public void getContacts() {
         ContentResolver cr = getApplicationContext().getContentResolver();
 
         Cursor managedCursor = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                new String[]{ContactsContract.CommonDataKinds.Phone.CONTACT_ID, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER,ContactsContract.CommonDataKinds.Phone.PHOTO_URI}, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE NOCASE ASC");
+                new String[]{ContactsContract.CommonDataKinds.Phone.CONTACT_ID, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.PHOTO_URI}, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE NOCASE ASC");
 
 
         while (managedCursor.moveToNext()) {
             String id = managedCursor.getString(0);
             String name = managedCursor.getString(1);
-            String phoneNumber=managedCursor.getString(2);
-            String image_uri=managedCursor.getString(3);
+            String phoneNumber = managedCursor.getString(2);
+            String image_uri = managedCursor.getString(3);
             email = getEmail(id);
             contact_id.add(id);
             namelist.add(name);
@@ -300,17 +314,16 @@ public class GetContactDetailsActivity extends AppCompatActivity {
 
     private String getEmail(String contactId) {
 
-        String mailE=null;
+        String mailE = null;
         ContentResolver cr = getApplicationContext().getContentResolver();
         Cursor cursor = cr.query(
                 ContactsContract.CommonDataKinds.Email.CONTENT_URI,
                 null,
-                ContactsContract.CommonDataKinds.Email.CONTACT_ID +" = ?",
+                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
                 new String[]{contactId}, null);
 
-        while (cursor.moveToNext())
-        {
-            mailE=cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS));
+        while (cursor.moveToNext()) {
+            mailE = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS));
         }
 
         cursor.close();
