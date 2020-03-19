@@ -126,9 +126,7 @@ public class GetContactDetailsActivity extends AppCompatActivity {
                     // sees the explanation, try again to request the permission.
 
                 } else {
-
-                    // No explanation needed, we can request the permission.
-
+                    // No expanation needed, we can request the permission.
                     ActivityCompat.requestPermissions(this,
                             new String[]{Manifest.permission.READ_CONTACTS},
                             PERMISSION_REQUEST_CONTACT);
